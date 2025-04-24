@@ -1,4 +1,4 @@
-name: Alerta para o Discord
+name: Alerta Discord com curl
 
 on:
   push:
@@ -7,16 +7,40 @@ on:
   pull_request:
     branches:
       - main
+  issues:
+    types: [opened]
+  workflow_dispatch:
 
 jobs:
-  discord-alert:
+  alerta-push-pr:
     runs-on: ubuntu-latest
-
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     steps:
-      - name: Enviar alerta para o Discord
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Alerta de Push ou PR
         run: |
           curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "{\"content\": \"🚨 Novo push ou PR no repositório **${{ github.repository }}** por **${{ github.actor }}**.\n📝 Commit: '${{ github.event.head_commit.message }}_
+          -X POST \
+          -d '{"content":"🚨 Novo push ou PR na branch main!\n🧑 Autor: '${{ github.actor }}'\n📝 Commit: '${{ github.event.head_commit.message || github.event.pull_request.title }}'"}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
+
+  alerta-issue:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues'
+    steps:
+      - name: Alerta de nova Issue
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d '{"content":"📬 Nova issue aberta!\n🧑 Autor: '${{ github.actor }}'\n📌 Título: '${{ github.event.issue.title }}'"}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
+
+  alerta-manual:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Alerta manual
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d '{"content":"🧪 Alerta manual disparado via GitHub Actions!"}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
