@@ -14,11 +14,9 @@ jobs:
 
     steps:
       - name: Enviar alerta para o Discord
-        uses: Ilshidur/action-discord@v1.0.0
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        with:
-          args: |
-            🚨 Novo push/PR no repositório **${{ github.repository }}**
-            🧑 Autor: **${{ github.actor }}**
-            📝 Mensagem do commit: "${{ github.event.head_commit.message }}"
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"🚨 Novo push ou PR no repositório **${{ github.repository }}** por **${{ github.actor }}**.\n📝 Commit: '${{ github.event.head_commit.message }}_
