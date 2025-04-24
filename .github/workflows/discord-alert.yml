@@ -1,0 +1,23 @@
+name: Alerta para o Discord
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  discord-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar alerta para o Discord
+        uses: Ilshidur/action-discord@master
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          message: |
+            🚀 Uma nova alteração foi feita no repositório **${{ github.repository }}**!
+            🧑‍💻 Autor: ${{ github.actor }}
+            🔀 Tipo de evento: ${{ github.event_name }}
+            📄 Commit: ${{ github.event.head_commit.message }}

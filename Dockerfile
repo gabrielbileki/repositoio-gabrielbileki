@@ -1,20 +1,23 @@
-# Use the latest LTS version of Node.js
+# Usa uma imagem leve do Node.js
 FROM node:18-alpine
- 
-# Set the working directory inside the container
+
+# Define o diretório de trabalho dentro do container
 WORKDIR /app
- 
-# Copy package.json and package-lock.json
+
+# Copia os arquivos de dependências
 COPY package*.json ./
- 
-# Install dependencies
+
+# Instala as dependências
 RUN npm install
- 
-# Copy the rest of your application files
+
+# Copia todo o código do projeto
 COPY . .
- 
-# Expose the port your app runs on
+
+# Concede permissões para evitar erros
+RUN chmod -R 777 /app
+
+# Expõe a porta 3000 (usada pelo React)
 EXPOSE 3000
- 
-# Define the command to run your app
-CMD ["npm", "run", "dev", "--", "--host"]
+
+# Comando para rodar a aplicação
+CMD ["npm", "start"]
