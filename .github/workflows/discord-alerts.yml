@@ -1,22 +1,62 @@
-name: Alerta para o Discord
+name: Discord Alerts
 
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+    types: [opened]
 
 jobs:
   discord-alert:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Enviar alerta para o Discord
+      - name: Alerta de novo push/merge no main
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           curl -H "Content-Type: application/json" -X POST \
-          -d "{\"content\": \"🚨 Novo push ou PR no repositório **${{ github.repository }}** por **${{ github.actor }}**.\n📝 Commit: '${{ github.event.head_commit.message }}'\"}" \
+          -d "{\"content\": \"📦 Novo push/merge no branch **main** por **${{ github.actor }}** no repositório **${{ github.repository }}**.\"}" \
+          $DISCORD_WEBHOOK
+
+  success-alert:
+    needs: [discord-alert]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Alerta de sucesso no CI/CD
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" -X POST \
+          -d "{\"content\": \"✅ CI/CD finalizado com sucesso para o repositório **${{ github.repository }}**!\"}" \
+          $DISCORD_WEBHOOK
+
+  fail-alert:
+    needs: [discord-alert]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Alerta de erro no CI/CD
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" -X POST \
+          -d "{\"content\": \"❌ O workflow falhou no repositório **${{ github.repository }}**. Verifique os logs!\"}" \
+          $DISCORD_WEBHOOK
+
+  pr-alert:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notificar novo Pull Request
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          curl -H "Content-Type: application/json" -X POST \
+          -d "{\"content\": \"🔁 Novo Pull Request criado por **${{ github.actor }}**: *${{ github.event.pull_request.title }}*\n🔗 Link: ${{ github.event.pull_request.html_url }}\"}" \
           $DISCORD_WEBHOOK
