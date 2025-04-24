@@ -14,11 +14,11 @@ jobs:
 
     steps:
       - name: Enviar alerta para o Discord
-        uses: Ilshidur/action-discord@master
+        uses: Ilshidur/action-discord@v1.0.0
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: |
-            🚨 Novo evento no repositório **${{ github.repository }}**
-            ✅ Ação: **${{ github.event_name }}**
-            👤 Autor: **${{ github.actor }}**
-            📝 Commit: "${{ github.event.head_commit.message }}"
+          args: |
+            🚨 Novo push/PR no repositório **${{ github.repository }}**
+            🧑 Autor: **${{ github.actor }}**
+            📝 Mensagem do commit: "${{ github.event.head_commit.message }}"
