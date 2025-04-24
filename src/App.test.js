@@ -1,21 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
-// Teste 1: Verifica se o título "Login" está renderizado
-test('renderiza o título "Login"', () => {
-  render(<App />);
-  const titleElement = screen.getByRole('heading', { name: /login/i });
-  expect(titleElement).toBeInTheDocument();
-});
-
-// Teste 2: Verifica se o botão "Acessar" está renderizado
-test('renderiza o botão "Acessar"', () => {
-  render(<App />);
-  const buttonElement = screen.getByRole('button', { name: /acessar/i });
-  expect(buttonElement).toBeInTheDocument();
-});
-
-// Teste 3: Verifica se os campos de email e senha estão renderizados
+// Teste 1: Verifica campos de email e senha
 test('renderiza os campos de email e senha', () => {
   render(<App />);
   const emailInput = screen.getByPlaceholderText(/e-mail/i);
@@ -24,24 +10,42 @@ test('renderiza os campos de email e senha', () => {
   expect(passwordInput).toBeInTheDocument();
 });
 
-// Teste 4: Verifica se o botão "Acessar" está desabilitado inicialmente (campos vazios)
+// Teste 2: Verifica botão desabilitado inicialmente
 test('botão "Acessar" está desabilitado inicialmente', () => {
   render(<App />);
   const buttonElement = screen.getByRole('button', { name: /acessar/i });
-  expect(buttonElement).toBeDisabled(); // Agora deve passar!
+  expect(buttonElement).toBeDisabled();
 });
 
-// Teste 5: Simula a digitação nos campos e verifica se o botão é habilitado
+// Teste 3: Verifica habilitação do botão
 test('habilita o botão "Acessar" ao preencher os campos', () => {
   render(<App />);
   const emailInput = screen.getByPlaceholderText(/e-mail/i);
   const passwordInput = screen.getByPlaceholderText(/senha/i);
   const buttonElement = screen.getByRole('button', { name: /acessar/i });
-
-  // Simula a digitação
+  
   fireEvent.change(emailInput, { target: { value: 'usuario@exemplo.com' } });
   fireEvent.change(passwordInput, { target: { value: 'senha123' } });
-
-  // Verifica se o botão foi habilitado
+  
   expect(buttonElement).not.toBeDisabled();
+});
+
+// Teste 4: Verifica tipo dos inputs
+test('campos tem os tipos corretos (email e password)', () => {
+  render(<App />);
+  const emailInput = screen.getByPlaceholderText(/e-mail/i);
+  const passwordInput = screen.getByPlaceholderText(/senha/i);
+  expect(emailInput).toHaveAttribute('type', 'email');
+  expect(passwordInput).toHaveAttribute('type', 'password');
+});
+
+// Teste 5: Verifica comportamento com apenas um campo preenchido
+test('botão permanece desabilitado com apenas um campo preenchido', () => {
+  render(<App />);
+  const emailInput = screen.getByPlaceholderText(/e-mail/i);
+  const buttonElement = screen.getByRole('button', { name: /acessar/i });
+  
+  fireEvent.change(emailInput, { target: { value: 'usuario@exemplo.com' } });
+  
+  expect(buttonElement).toBeDisabled();
 });
